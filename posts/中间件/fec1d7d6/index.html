@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>RocketMQ使用 | Nie</title><meta name="author" content="Nie"><meta name="copyright" content="Nie"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="一、MQ介绍1、为什么要用MQ消息队列是一种“先进先出”的数据结构  其应用场景主要包含以下3个方面  应用解耦  系统的耦合性越高，容错性就越低。以电商应用为例，用户创建订单后，如果耦合调用库存系统、物流系统、支付系统，任何一个子系统出了故障或者因为升级等原因暂时不可用，都会造成下单操作异常，影响用户使用体验。  使用消息队列解耦合，系统的耦合性就会提高了。比如物流系统发生故障，需要几分钟才能来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ使用">
+<meta property="og:url" content="https://www.lamaro.cn/posts/%E4%B8%AD%E9%97%B4%E4%BB%B6/fec1d7d6/index.html">
+<meta property="og:site_name" content="Nie">
+<meta property="og:description" content="一、MQ介绍1、为什么要用MQ消息队列是一种“先进先出”的数据结构  其应用场景主要包含以下3个方面  应用解耦  系统的耦合性越高，容错性就越低。以电商应用为例，用户创建订单后，如果耦合调用库存系统、物流系统、支付系统，任何一个子系统出了故障或者因为升级等原因暂时不可用，都会造成下单操作异常，影响用户使用体验。  使用消息队列解耦合，系统的耦合性就会提高了。比如物流系统发生故障，需要几分钟才能来">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.lamaro.cn/file/img/default_cover_01.jpg">
+<meta property="article:published_time" content="2022-05-03T13:59:00.000Z">
+<meta property="article:modified_time" content="2022-05-03T13:59:00.000Z">
+<meta property="article:author" content="Nie">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.lamaro.cn/file/img/default_cover_01.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://www.lamaro.cn/posts/%E4%B8%AD%E9%97%B4%E4%BB%B6/fec1d7d6/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RocketMQ使用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-03 21:59:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/file/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img fixed" id="page-header"><nav id="nav"><span id="blog-info"><a href="/" title="Nie"></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">RocketMQ使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2022-05-03T13:59:00.000Z" title="Created 2022-05-03 21:59:00">2022-05-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2022-05-03T13:59:00.000Z" title="Updated 2022-05-03 21:59:00">2022-05-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%B8%AD%E9%97%B4%E4%BB%B6/">中间件</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>5min</span></span></div></div></div><article class="post-content" id="article-container"><h1 id="一、MQ介绍"><a href="#一、MQ介绍" class="headerlink" title="一、MQ介绍"></a>一、MQ介绍</h1><h2 id="1、为什么要用MQ"><a href="#1、为什么要用MQ" class="headerlink" title="1、为什么要用MQ"></a>1、为什么要用MQ</h2><p>消息队列是一种“先进先出”的数据结构</p>
+<p><img src="https://oss.lamaro.cn/imgs/queue1.png"></p>
+<p>其应用场景主要包含以下3个方面</p>
+<ul>
+<li>应用解耦</li>
+</ul>
+<p>系统的耦合性越高，容错性就越低。以电商应用为例，用户创建订单后，如果耦合调用库存系统、物流系统、支付系统，任何一个子系统出了故障或者因为升级等原因暂时不可用，都会造成下单操作异常，影响用户使用体验。</p>
+<p><img src="https://oss.lamaro.cn/imgs/%E8%A7%A3%E8%80%A61.png"></p>
+<p>使用消息队列解耦合，系统的耦合性就会提高了。比如物流系统发生故障，需要几分钟才能来修复，在这段时间内，物流系统要处理的数据被缓存到消息队列中，用户的下单操作正常完成。当物流系统回复后，补充处理存在消息队列中的订单消息即可，终端系统感知不到物流系统发生过几分钟故障。</p>
+<p><img src="https://oss.lamaro.cn/imgs/%E8%A7%A3%E8%80%A62.png"></p>
+<ul>
+<li>流量削峰</li>
+</ul>
+<p><img src="https://oss.lamaro.cn/imgs/mq-5.png"></p>
+<p>应用系统如果遇到系统请求流量的瞬间猛增，有可能会将系统压垮。有了消息队列可以将大量请求缓存起来，分散到很长一段时间处理，这样可以大大提到系统的稳定性和用户体验。</p>
+<p><img src="https://oss.lamaro.cn/imgs/mq-6.png"></p>
+<p>一般情况，为了保证系统的稳定性，如果系统负载超过阈值，就会阻止用户请求，这会影响用户体验，而如果使用消息队列将请求缓存起来，等待系统处理完毕后通知用户下单完毕，这样总不能下单体验要好。</p>
+<p><u>处于经济考量目的：</u></p>
+<p>业务系统正常时段的QPS如果是1000，流量最高峰是10000，为了应对流量高峰配置高性能的服务器显然不划算，这时可以使用消息队列对峰值流量削峰</p>
+<ul>
+<li>数据分发</li>
+</ul>
+<p><img src="https://oss.lamaro.cn/imgs/mq-1.png"></p>
+<p>通过消息队列可以让数据在多个系统更加之间进行流通。数据的产生方不需要关心谁来使用数据，只需要将数据发送到消息队列，数据使用方直接在消息队列中直接获取数据即可</p>
+<p><img src="https://oss.lamaro.cn/imgs/mq-2.png"></p>
+<h2 id="2、MQ的优点和缺点"><a href="#2、MQ的优点和缺点" class="headerlink" title="2、MQ的优点和缺点"></a>2、MQ的优点和缺点</h2><p>优点：解耦、削峰、数据分发</p>
+<p>缺点包含以下几点：</p>
+<ul>
+<li><p>系统可用性降低</p>
+<p>系统引入的外部依赖越多，系统稳定性越差。一旦MQ宕机，就会对业务造成影响。</p>
+<p>如何保证MQ的高可用？</p>
+</li>
+<li><p>系统复杂度提高</p>
+<p>MQ的加入大大增加了系统的复杂度，以前系统间是同步的远程调用，现在是通过MQ进行异步调用。</p>
+<p>如何保证消息没有被重复消费？怎么处理消息丢失情况？那么保证消息传递的顺序性？</p>
+</li>
+<li><p>一致性问题</p>
+<p>A系统处理完业务，通过MQ给B、C、D三个系统发消息数据，如果B系统、C系统处理成功，D系统处理失败。</p>
+<p>如何保证消息数据处理的一致性？</p>
+</li>
+</ul>
+<h2 id="3、各种MQ产品的比较"><a href="#3、各种MQ产品的比较" class="headerlink" title="3、各种MQ产品的比较"></a>3、各种MQ产品的比较</h2><p>常见的MQ产品包括Kafka、ActiveMQ、RabbitMQ、RocketMQ。 </p>
+<p><img src="https://oss.lamaro.cn/imgs/MQ%E6%AF%94%E8%BE%83.png"></p>
+<h1 id="二、RocketMQ"><a href="#二、RocketMQ" class="headerlink" title="二、RocketMQ"></a>二、RocketMQ</h1><h2 id="1、概述"><a href="#1、概述" class="headerlink" title="1、概述"></a>1、概述</h2><p>官网：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/">https://rocketmq.apache.org/</a></p>
+<p>文档：<a target="_blank" rel="noopener" href="https://rocketmq.apache.org/docs/quick-start/">https://rocketmq.apache.org/docs/quick-start/</a></p>
+<p>GitHub：<a target="_blank" rel="noopener" href="https://github.com/apache/rocketmq">https://github.com/apache/rocketmq</a></p>
+<p>RocketMQ是阿里巴巴2016年MQ中间件，使用Java语言开发，在阿里内部，RocketMQ承接了例如“双11”等高并发场景的消息流转，能够处理万亿级别的消息。</p>
+<h2 id="2、Linux使用"><a href="#2、Linux使用" class="headerlink" title="2、Linux使用"></a>2、Linux使用</h2><p><a target="_blank" rel="noopener" href="https://rocketmq.apache.org/docs/quick-start/">https://rocketmq.apache.org/docs/quick-start/</a></p>
+<h3 id="2-1-下载RocketMQ"><a href="#2-1-下载RocketMQ" class="headerlink" title="2.1 下载RocketMQ"></a>2.1 下载RocketMQ</h3><p><a target="_blank" rel="noopener" href="https://www.apache.org/dyn/closer.cgi?path=rocketmq/4.9.3/rocketmq-all-4.9.3-bin-release.zip">下载地址</a></p>
+<h3 id="2-2-环境要求"><a href="#2-2-环境要求" class="headerlink" title="2.2 环境要求"></a>2.2 环境要求</h3><ul>
+<li>64bit OS, Linux&#x2F;Unix&#x2F;Mac is recommended;(Windows user see guide below)</li>
+<li>64bit JDK 1.8+;</li>
+<li>Maven 3.2.x;</li>
+<li>Git;</li>
+<li>4g+ free disk for Broker server</li>
+</ul>
+<h3 id="2-3-安装"><a href="#2-3-安装" class="headerlink" title="2.3 安装"></a>2.3 安装</h3><ol>
+<li>解压安装包</li>
+<li>进入安装目录</li>
+</ol>
+<blockquote>
+<p>目录介绍</p>
+<ul>
+<li>bin：启动脚本，包括shell脚本和CMD脚本</li>
+<li>conf：实例配置文件 ，包括broker配置文件、logback配置文件等</li>
+<li>lib：依赖jar包，包括Netty、commons-lang、FastJSON等</li>
+</ul>
+</blockquote>
+<h3 id="2-4-启动RocketMQ"><a href="#2-4-启动RocketMQ" class="headerlink" title="2.4 启动RocketMQ"></a>2.4 启动RocketMQ</h3><ol>
+<li>启动NameServer</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.启动NameServer</span></span><br><span class="line">nohup sh bin/mqnamesrv &amp;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.查看启动日志</span></span><br><span class="line">tail -f ~/logs/rocketmqlogs/namesrv.log</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>启动Broker</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.启动Broker</span></span><br><span class="line">nohup sh bin/mqbroker -n localhost:9876 &amp;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.查看启动日志</span></span><br><span class="line">tail -f ~/logs/rocketmqlogs/broker.log </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>问题描述：</p>
+<p>RocketMQ默认的虚拟机内存较大，启动Broker如果因为内存不足失败，需要编辑如下两个配置文件，修改JVM内存大小</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑runbroker.sh和runserver.sh修改默认JVM大小</span></span><br><span class="line">vi runbroker.sh</span><br><span class="line">vi runserver.sh</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>参考设置：</li>
+</ul>
+<p><code>JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -server -Xms256m -Xmx256m -Xmn128m -XX:MetaspaceSize=128m  -XX:MaxMetaspaceSize=320m&quot;</code></p>
+<h3 id="2-5-测试RocketMQ"><a href="#2-5-测试RocketMQ" class="headerlink" title="2.5 测试RocketMQ"></a>2.5 测试RocketMQ</h3><ol>
+<li>发送消息</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1.设置环境变量</span></span><br><span class="line"><span class="built_in">export</span> NAMESRV_ADDR=localhost:9876</span><br><span class="line"><span class="comment"># 2.使用安装包的Demo发送消息</span></span><br><span class="line">sh bin/tools.sh org.apache.rocketmq.example.quickstart.Producer</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>接收消息</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.设置环境变量</span></span><br><span class="line">export NAMESRV_ADDR=localhost:9876</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.接收消息</span></span><br><span class="line">sh bin/tools.sh org.apache.rocketmq.example.quickstart.Consumer</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-6-关闭RocketMQ"><a href="#2-6-关闭RocketMQ" class="headerlink" title="2.6 关闭RocketMQ"></a>2.6 关闭RocketMQ</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.关闭NameServer</span></span><br><span class="line">sh bin/mqshutdown namesrv</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.关闭Broker</span></span><br><span class="line">sh bin/mqshutdown broker</span><br></pre></td></tr></table></figure>
+
+<h2 id="3、Docker部署"><a href="#3、Docker部署" class="headerlink" title="3、Docker部署"></a>3、Docker部署</h2><h3 id="3-1-安装rocket-mq"><a href="#3-1-安装rocket-mq" class="headerlink" title="3.1 安装rocket mq"></a>3.1 安装rocket mq</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rocketmqinc/rocketmq</span><br><span class="line"></span><br><span class="line">docker run --name namesrv -p 9876:9876 -e <span class="string">&quot;MAX_POSSIBLE_HEAP=100000000&quot;</span> -d rocketmqinc/rocketmq sh mqnamesrv</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-安装borker"><a href="#3-2-安装borker" class="headerlink" title="3.2 安装borker"></a>3.2 安装borker</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">vim /usr/local/rocketmq/broker.conf </span><br><span class="line"></span><br><span class="line">brokerClusterName = DefaultCluster</span><br><span class="line">brokerName = broker-a</span><br><span class="line">brokerId = 0</span><br><span class="line">deleteWhen = 04</span><br><span class="line">fileReservedTime = 48</span><br><span class="line">brokerRole = ASYNC_MASTER</span><br><span class="line">flushDiskType = ASYNC_FLUSH</span><br><span class="line">brokerIP1 = 124.222.18.254</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">docker run --name broker -p 10911:10911 -p 10909:10909 -v /usr/local/rocketmq/broker.conf:/opt/rocketmq-4.4.0/conf/broker.conf --<span class="built_in">link</span> namesrv:namesrv -e <span class="string">&quot;NAMESRV_ADDR=namesrv:9876&quot;</span> -e <span class="string">&quot;MAX_POSSIBLE_HEAP=200000000&quot;</span> -d rocketmqinc/rocketmq:4.4.0 sh mqbroker -c /opt/rocketmq-4.4.0/conf/broker.conf</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-console的安装"><a href="#3-3-console的安装" class="headerlink" title="3.3 console的安装"></a>3.3 console的安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run --name=rocketmq-console -e <span class="string">&quot;JAVA_OPTS=-Drocketmq.namesrv.addr=124.222.18.254:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false&quot;</span> -p 8080:8080 -d styletang/rocketmq-console-ng</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-测试"><a href="#3-4-测试" class="headerlink" title="3.4 测试"></a>3.4 测试</h3><p>访问<a target="_blank" rel="noopener" href="http://124.222.18.254:8080/#/">http://124.222.18.254:8080/#/</a></p>
+<p><img src="https://oss.lamaro.cn/imgs/image-20220503215139442.png" alt="image-20220503215139442"></p>
+</article><div class="tag_share"><div class="post_share"><div class="social-share" data-image="/file/img/default_cover_01.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/post/0/" title=""><img class="cover" src="/file/img/default_cover_01.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info"></div></div></a></div><div class="next-post pull-right"><a href="/posts/%E6%A1%86%E6%9E%B6/a11e3a0c/" title="微服务概述"><img class="cover" src="/file/img/default_cover_01.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">微服务概述</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/file/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Nie</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/juuyu"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E3%80%81MQ%E4%BB%8B%E7%BB%8D"><span class="toc-text">一、MQ介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8MQ"><span class="toc-text">1、为什么要用MQ</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81MQ%E7%9A%84%E4%BC%98%E7%82%B9%E5%92%8C%E7%BC%BA%E7%82%B9"><span class="toc-text">2、MQ的优点和缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E5%90%84%E7%A7%8DMQ%E4%BA%A7%E5%93%81%E7%9A%84%E6%AF%94%E8%BE%83"><span class="toc-text">3、各种MQ产品的比较</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C%E3%80%81RocketMQ"><span class="toc-text">二、RocketMQ</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E6%A6%82%E8%BF%B0"><span class="toc-text">1、概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81Linux%E4%BD%BF%E7%94%A8"><span class="toc-text">2、Linux使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E4%B8%8B%E8%BD%BDRocketMQ"><span class="toc-text">2.1 下载RocketMQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-text">2.2 环境要求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E5%AE%89%E8%A3%85"><span class="toc-text">2.3 安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-%E5%90%AF%E5%8A%A8RocketMQ"><span class="toc-text">2.4 启动RocketMQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-%E6%B5%8B%E8%AF%95RocketMQ"><span class="toc-text">2.5 测试RocketMQ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-%E5%85%B3%E9%97%ADRocketMQ"><span class="toc-text">2.6 关闭RocketMQ</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81Docker%E9%83%A8%E7%BD%B2"><span class="toc-text">3、Docker部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%AE%89%E8%A3%85rocket-mq"><span class="toc-text">3.1 安装rocket mq</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%AE%89%E8%A3%85borker"><span class="toc-text">3.2 安装borker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-console%E7%9A%84%E5%AE%89%E8%A3%85"><span class="toc-text">3.3 console的安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%B5%8B%E8%AF%95"><span class="toc-text">3.4 测试</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background: rgba(0, 0, 0, 0)"><div id="footer-wrap"><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script defer="defer" id="ribbon" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-ribbon.min.js" size="150" alpha="0.6" zIndex="-1" mobile="false" data-click="true"></script></div></body></html>
